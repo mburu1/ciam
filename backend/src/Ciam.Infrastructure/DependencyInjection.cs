@@ -5,6 +5,7 @@ using Ciam.Infrastructure.Email;
 using Ciam.Infrastructure.Identity;
 using Ciam.Infrastructure.Persistence;
 using Ciam.Infrastructure.Repositories;
+using Ciam.Infrastructure.Telemetry;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IUserSessionRepository, UserSessionRepository>();
         services.AddScoped<IAuthenticationChallengeRepository, AuthenticationChallengeRepository>();
         services.AddScoped<IEmailSender, LoggingEmailSender>();
+        services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
         services.AddOptions<KeycloakOptions>()
             .Bind(configuration.GetSection(KeycloakOptions.SectionName))
