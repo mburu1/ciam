@@ -3,6 +3,7 @@ using System;
 using Ciam.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Ciam.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CiamDbContext))]
-    partial class CiamDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260913125136_PersistUserSecurityCollections")]
+    partial class PersistUserSecurityCollections
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -14,9 +14,9 @@ public sealed class KeycloakIdentityProvider(HttpClient httpClient, IOptions<Key
 
     public async Task<IdentityRegistrationResult> RegisterAsync(RegisterUserRequest request, CancellationToken cancellationToken = default)
     {
-        using var response = await httpClient.PostAsJsonAsync(
-            AdminPath("users"),
-            new
+        using var adminRequest = new HttpRequestMessage(HttpMethod.Post, AdminPath("users"))
+        {
+            Content = JsonContent.Create(new
             {
                 username = request.PreferredUsername,
                 email = request.Email,
@@ -24,13 +24,24 @@ public sealed class KeycloakIdentityProvider(HttpClient httpClient, IOptions<Key
                 lastName = request.LastName,
                 enabled = true,
                 emailVerified = false
-            },
-            cancellationToken);
+            })
+        };
+        adminRequest.Headers.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue(
+                "Bearer",
+                await GetAdminAccessTokenAsync(cancellationToken));
+
+        using var response = await httpClient.SendAsync(adminRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var subject = response.Headers.Location?.Segments.LastOrDefault()
+        var subject = response.Headers.Location?.Segments.LastOrDefault()?.Trim('/')
             ?? throw new InvalidOperationException("Keycloak did not return the created user location.");
-        return new IdentityRegistrationResult(Guid.Parse(subject), null);
+        if (!Guid.TryParse(subject, out var subjectId))
+        {
+            throw new InvalidOperationException("Keycloak returned an invalid created user identifier.");
+        }
+
+        return new IdentityRegistrationResult(subjectId, null);
     }
 
     public Task<AuthTokensResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default) =>
@@ -59,10 +70,17 @@ public sealed class KeycloakIdentityProvider(HttpClient httpClient, IOptions<Key
 
     public async Task SendEmailVerificationAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        using var response = await httpClient.PostAsJsonAsync(
-            AdminPath($"users/{userId:D}/execute-actions-email"),
-            new[] { "VERIFY_EMAIL" },
-            cancellationToken);
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            AdminPath($"users/{userId:D}/execute-actions-email"))
+        {
+            Content = JsonContent.Create(new[] { "VERIFY_EMAIL" })
+        };
+        request.Headers.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue(
+                "Bearer",
+                await GetAdminAccessTokenAsync(cancellationToken));
+        using var response = await httpClient.SendAsync(request, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 
@@ -91,6 +109,38 @@ public sealed class KeycloakIdentityProvider(HttpClient httpClient, IOptions<Key
             AccessTokenExpiresAtUtc = now.AddSeconds(token.ExpiresIn),
             RefreshTokenExpiresAtUtc = now.AddSeconds(token.RefreshExpiresIn)
         };
+    }
+
+    private async Task<string> GetAdminAccessTokenAsync(CancellationToken cancellationToken)
+    {
+        var clientId = string.IsNullOrWhiteSpace(_options.AdminClientId)
+            ? _options.ClientId
+            : _options.AdminClientId;
+        var clientSecret = string.IsNullOrWhiteSpace(_options.AdminClientSecret)
+            ? _options.ClientSecret
+            : _options.AdminClientSecret;
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+        {
+            throw new InvalidOperationException(
+                "Keycloak admin client credentials are required for user provisioning.");
+        }
+
+        using var response = await httpClient.PostAsync(
+            TokenPath(),
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "client_credentials",
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret
+            }),
+            cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var token = await response.Content.ReadFromJsonAsync<KeycloakTokenResponse>(
+            cancellationToken: cancellationToken)
+            ?? throw new InvalidOperationException("Keycloak returned an empty admin token response.");
+        return token.AccessToken;
     }
 
     private string TokenPath() => $"realms/{Uri.EscapeDataString(_options.Realm)}/protocol/openid-connect/token";

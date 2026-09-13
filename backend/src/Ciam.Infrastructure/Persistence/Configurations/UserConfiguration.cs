@@ -1,4 +1,5 @@
 using Ciam.Domain.Entities;
+using Ciam.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -34,8 +35,29 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.OwnsOne(user => user.PhoneNumber, phone =>
             phone.Property(value => value.Value).HasColumnName("phone_number").HasMaxLength(20));
 
-        builder.Ignore("_roles");
-        builder.Ignore("_mfaMethods");
-        builder.Ignore("_authenticationMethods");
+        builder.Property<HashSet<UserRole>>("_roles")
+            .HasColumnName("roles")
+            .HasColumnType("text")
+            .HasConversion(
+                roles => string.Join(',', roles.Select(role => role.ToString())),
+                value => value.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Enum.Parse<UserRole>)
+                    .ToHashSet());
+        builder.Property<HashSet<MfaMethod>>("_mfaMethods")
+            .HasColumnName("mfa_methods")
+            .HasColumnType("text")
+            .HasConversion(
+                methods => string.Join(',', methods.Select(method => method.ToString())),
+                value => value.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Enum.Parse<MfaMethod>)
+                    .ToHashSet());
+        builder.Property<HashSet<AuthenticationMethod>>("_authenticationMethods")
+            .HasColumnName("authentication_methods")
+            .HasColumnType("text")
+            .HasConversion(
+                methods => string.Join(',', methods.Select(method => method.ToString())),
+                value => value.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Enum.Parse<AuthenticationMethod>)
+                    .ToHashSet());
     }
 }
