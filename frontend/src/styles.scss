@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-
 :root {
   --surface-0: #f7faf9;
   --surface-1: #eef5f3;
@@ -8,7 +6,7 @@
   --border: #dbe7e4;
   --accent: #14b8a6;
   --accent-strong: #0f766e;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
   background: var(--surface-0);
   font-synthesis: none;

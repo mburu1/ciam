@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Ciam.Api\Ciam.Api.csproj" />
+    <ProjectReference Include="..\..\src\Ciam.Contracts\Ciam.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
