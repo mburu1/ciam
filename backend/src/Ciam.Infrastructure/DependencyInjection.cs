@@ -17,8 +17,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Ciam")
-            ?? throw new InvalidOperationException("ConnectionStrings:Ciam is required.");
+        var connectionString = DatabaseConnectionString.Resolve(configuration);
 
         services.AddDbContext<CiamDbContext>(options =>
             options.UseNpgsql(connectionString, npgsql =>

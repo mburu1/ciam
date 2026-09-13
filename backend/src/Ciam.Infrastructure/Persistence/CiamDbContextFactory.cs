@@ -8,7 +8,7 @@ public sealed class CiamDbContextFactory : IDesignTimeDbContextFactory<CiamDbCon
     public CiamDbContext CreateDbContext(string[] args)
     {
         var connectionString = Environment.GetEnvironmentVariable("CIAM_DB_CONNECTION")
-            ?? "Host=localhost;Port=5432;Database=ciam;Username=ciam;Password=local-ciam-db-password";
+            ?? "Host=localhost;Port=5432;Database=ciam;Username=ciam";
 
         var options = new DbContextOptionsBuilder<CiamDbContext>()
             .UseNpgsql(connectionString, npgsql =>

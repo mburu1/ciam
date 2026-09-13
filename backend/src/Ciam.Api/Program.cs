@@ -119,8 +119,7 @@ builder.Services.AddOpenTelemetry()
         .AddRuntimeInstrumentation()
         .AddOtlpExporter());
 
-var connectionString = builder.Configuration.GetConnectionString("Ciam")
-    ?? throw new InvalidOperationException("ConnectionStrings:Ciam is required.");
+var connectionString = DatabaseConnectionString.Resolve(builder.Configuration);
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(connectionString, name: "postgresql", tags: ["ready", "db"])

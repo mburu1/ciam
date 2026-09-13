@@ -58,7 +58,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Ciam: "Host=postgres;Port=5432;Database=ciam;Username=${APP_DB_USER:-ciam};Password=${APP_DB_PASSWORD:-local-ciam-db-password}"
+      ConnectionStrings__Ciam: "Host=postgres;Port=5432;Database=ciam;Username=${APP_DB_USER:-ciam}"
+      Database__Password: ${APP_DB_PASSWORD:-local-ciam-db-password}
       Database__ApplyMigrations: ${DATABASE_APPLY_MIGRATIONS:-true}
       Keycloak__BaseUrl: http://keycloak:8080
       Keycloak__Realm: ${KEYCLOAK_REALM:-ciam}
