@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using Ciam.Api;
+using Ciam.Api.Logging;
 using Ciam.Application;
 using Ciam.Application.Abstractions.Services;
 using Ciam.Application.Common.Exceptions;
@@ -28,12 +29,9 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, loggerConfiguration) =>
-    loggerConfiguration
-        .ReadFrom.Configuration(context.Configuration)
-        .Enrich.FromLogContext()
-        .Enrich.WithEnvironmentName()
-        .Enrich.WithThreadId()
-        .WriteTo.Console());
+    loggerConfiguration.ConfigureApiLogging(
+        context.Configuration,
+        context.HostingEnvironment));
 
 builder.Services
     .AddApplication()
