@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/src/">
+    <Project Path="backend/src/Ciam.Api/Ciam.Api.csproj" />
+    <Project Path="backend/src/Ciam.Application/Ciam.Application.csproj" />
+    <Project Path="backend/src/Ciam.Contracts/Ciam.Contracts.csproj" />
+    <Project Path="backend/src/Ciam.Domain/Ciam.Domain.csproj" />
+    <Project Path="backend/src/Ciam.Infrastructure/Ciam.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/tests/">
+    <Project Path="backend/tests/Ciam.Api.Tests/Ciam.Api.Tests.csproj" />
+    <Project Path="backend/tests/Ciam.Application.Tests/Ciam.Application.Tests.csproj" />
+    <Project Path="backend/tests/Ciam.Domain.Tests/Ciam.Domain.Tests.csproj" />
+    <Project Path="backend/tests/Ciam.Infrastructure.Tests/Ciam.Infrastructure.Tests.csproj" />
+    <Project Path="backend/tests/Ciam.Integration.Tests/Ciam.Integration.Tests.csproj" />
+  </Folder>
+</Solution>
