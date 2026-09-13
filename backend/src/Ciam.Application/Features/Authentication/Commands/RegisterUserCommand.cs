@@ -32,7 +32,7 @@ public sealed class RegisterUserCommandHandler(
 
         var identity = await identityProvider.RegisterAsync(request, cancellationToken);
         var user = User.Create(
-            Guid.NewGuid(),
+            identity.Subject,
             FullName.Create(request.FirstName, request.LastName),
             email,
             PreferredUsername.Create(request.PreferredUsername),
