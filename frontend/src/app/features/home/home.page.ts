@@ -1,0 +1,26 @@
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth/services/auth.service';
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink],
+  selector: 'app-home-page',
+  template: `
+    <header class="topbar">
+      <a class="brand" routerLink="/"><span class="brand-mark">C</span><span>CIAM</span></a>
+      <nav><a routerLink="/auth/login">Sign in</a><a class="button" routerLink="/auth/register">Create account</a></nav>
+    </header>
+    <main class="hero">
+      <div class="hero-copy"><p class="eyebrow">Customer identity, simplified</p><h1>Your identity should work <em>for</em> you.</h1><p class="lead">Secure access, effortless experiences, and control over your digital identity—all in one place.</p><div class="actions"><a class="button primary" routerLink="/auth/register">Get started</a><a class="text-link" routerLink="/auth/login">I already have an account →</a></div></div>
+      <div class="hero-card"><div class="shield">✓</div><p class="card-label">Identity protected</p><h2>Security that feels invisible.</h2><div class="card-row"><span class="avatar">AM</span><span><strong>Account secured</strong><small>All systems operational</small></span><span class="check">✓</span></div><div class="card-row"><span class="icon">⌁</span><span><strong>Passkey ready</strong><small>Fast, phishing-resistant access</small></span><span class="check">✓</span></div></div>
+    </main>
+    <footer><span>© 2026 CIAM</span><span>Built for secure customer experiences</span></footer>
+  `,
+  styles: `
+    :host { display: block; min-height: 100dvh; background: var(--surface-0); color: var(--text); } .topbar { display: flex; align-items: center; justify-content: space-between; max-width: 76rem; margin: auto; padding: 1.4rem 2rem; } .brand { display: inline-flex; align-items: center; gap: .7rem; color: var(--text); font-weight: 850; letter-spacing: .15em; text-decoration: none; } .brand-mark { display: grid; width: 2.3rem; height: 2.3rem; place-items: center; border-radius: .7rem; color: #fff; background: var(--accent-strong); letter-spacing: 0; } nav { display: flex; align-items: center; gap: 1.4rem; } nav a { color: var(--text-muted); font-size: .9rem; font-weight: 700; text-decoration: none; } .button { display: inline-block; padding: .7rem 1rem; border-radius: .65rem; color: var(--text); background: var(--surface-1); } .hero { display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 5rem; max-width: 76rem; min-height: calc(100dvh - 8rem); margin: auto; padding: 3rem 2rem 6rem; } .hero-copy { max-width: 39rem; } .eyebrow { color: var(--accent-strong); font-size: .75rem; font-weight: 850; letter-spacing: .15em; text-transform: uppercase; } h1 { margin: 1rem 0 1.4rem; font-size: clamp(3.2rem, 7vw, 6.3rem); line-height: .94; letter-spacing: -.075em; } h1 em { color: var(--accent-strong); font-style: normal; } .lead { max-width: 34rem; color: var(--text-muted); font-size: 1.15rem; line-height: 1.7; } .actions { display: flex; align-items: center; gap: 1.4rem; margin-top: 2.2rem; } .primary { color: #fff; background: var(--accent-strong); padding: .95rem 1.3rem; } .text-link { color: var(--accent-strong); font-size: .9rem; font-weight: 800; text-decoration: none; } .hero-card { position: relative; overflow: hidden; padding: 2rem; border: 1px solid #ffffff33; border-radius: 1.3rem; color: #e5f7f4; background: linear-gradient(145deg, #12233f, #1c4e5f); box-shadow: 0 2rem 5rem #103b4a33; } .hero-card::after { position: absolute; width: 15rem; height: 15rem; border-radius: 50%; content: ''; right: -5rem; top: -5rem; background: #a7f3d014; } .shield { display: grid; width: 3rem; height: 3rem; place-items: center; border-radius: 1rem; color: #12233f; background: #a7f3d0; font-size: 1.5rem; font-weight: 900; } .card-label { margin: 2.5rem 0 .5rem; color: #a7f3d0; font-size: .75rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; } .hero-card h2 { max-width: 15rem; margin: 0 0 2rem; font-size: 2.1rem; letter-spacing: -.05em; } .card-row { display: flex; align-items: center; gap: .8rem; padding: 1rem 0; border-top: 1px solid #ffffff1c; } .avatar, .icon { display: grid; width: 2.3rem; height: 2.3rem; place-items: center; border-radius: .65rem; color: #12233f; background: #bfdbfe; font-size: .7rem; font-weight: 900; } .icon { color: #12233f; background: #fde68a; font-size: 1.1rem; } .card-row span:nth-child(2) { display: grid; gap: .2rem; flex: 1; } .card-row small { color: #b7d8da; } .check { color: #a7f3d0; font-weight: 900; } footer { display: flex; justify-content: space-between; max-width: 76rem; margin: auto; padding: 1.5rem 2rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: .8rem; } @media (max-width: 800px) { .hero { grid-template-columns: 1fr; gap: 3rem; padding-top: 2rem; } .hero-card { max-width: 30rem; } } @media (max-width: 520px) { nav a:first-child { display: none; } .actions { align-items: flex-start; flex-direction: column; gap: 1rem; } footer { flex-direction: column; gap: .5rem; } }
+  `,
+})
+export class HomePage {
+  readonly auth = inject(AuthService);
+}
