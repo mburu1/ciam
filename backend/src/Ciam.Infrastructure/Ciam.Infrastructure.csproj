@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Ciam.Application\Ciam.Application.csproj" />
     <ProjectReference Include="..\Ciam.Domain\Ciam.Domain.csproj" />
+    <ProjectReference Include="..\Ciam.Contracts\Ciam.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

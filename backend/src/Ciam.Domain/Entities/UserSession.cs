@@ -7,6 +7,13 @@ namespace Ciam.Domain.Entities;
 
 public sealed class UserSession : AggregateRoot
 {
+    private UserSession()
+        : base()
+    {
+        SessionTokenHash = string.Empty;
+        RefreshTokenHash = string.Empty;
+    }
+
     private UserSession(
         Guid id,
         Guid userId,

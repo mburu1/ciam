@@ -12,6 +12,14 @@ public sealed class User : AggregateRoot
     private readonly HashSet<MfaMethod> _mfaMethods = [];
     private readonly HashSet<AuthenticationMethod> _authenticationMethods = [];
 
+    private User()
+        : base()
+    {
+        FullName = null!;
+        Email = null!;
+        PreferredUsername = null!;
+    }
+
     private User(Guid id, FullName fullName, EmailAddress email, PreferredUsername preferredUsername)
         : base(id)
     {

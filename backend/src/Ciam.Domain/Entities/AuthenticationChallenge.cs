@@ -7,6 +7,12 @@ namespace Ciam.Domain.Entities;
 
 public sealed class AuthenticationChallenge : AggregateRoot
 {
+    private AuthenticationChallenge()
+        : base()
+    {
+        ChallengeCode = string.Empty;
+    }
+
     private AuthenticationChallenge(
         Guid id,
         Guid userId,
