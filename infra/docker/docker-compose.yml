@@ -69,6 +69,7 @@ services:
       Keycloak__AdminClientSecret: ${KEYCLOAK_API_CLIENT_SECRET:-local-ciam-api-secret}
       OpenTelemetry__Otlp__Endpoint: http://otel-collector:4317
       Cors__AllowedOrigins__0: http://localhost:${FRONTEND_PORT:-4200}
+      Cors__AllowedOrigins__1: http://localhost:4201
     ports:
       - "${API_PORT:-5240}:8080"
     depends_on:
