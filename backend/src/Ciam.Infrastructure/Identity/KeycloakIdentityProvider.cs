@@ -1,6 +1,8 @@
 using System.Net.Http.Json;
+using System.Net;
 using System.Text.Json.Serialization;
 using Ciam.Application.Abstractions.Identity;
+using Ciam.Application.Common.Exceptions;
 using Ciam.Contracts.Requests.Auth;
 using Ciam.Contracts.Responses.Auth;
 using Microsoft.Extensions.Options;
@@ -32,7 +34,17 @@ public sealed class KeycloakIdentityProvider(HttpClient httpClient, IOptions<Key
                 await GetAdminAccessTokenAsync(cancellationToken));
 
         using var response = await httpClient.SendAsync(adminRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var providerReason = await ReadProviderReasonAsync(response, cancellationToken);
+            var statusCode = IsConflict(providerReason)
+                ? HttpStatusCode.Conflict
+                : response.StatusCode is >= HttpStatusCode.BadRequest and < HttpStatusCode.InternalServerError
+                    ? HttpStatusCode.BadRequest
+                    : HttpStatusCode.BadGateway;
+
+            throw new IdentityProviderException("registration", statusCode, providerReason);
+        }
 
         var subject = response.Headers.Location?.Segments.LastOrDefault()?.Trim('/')
             ?? throw new InvalidOperationException("Keycloak did not return the created user location.");
@@ -147,6 +159,24 @@ public sealed class KeycloakIdentityProvider(HttpClient httpClient, IOptions<Key
 
     private string AdminPath(string path) =>
         $"admin/realms/{Uri.EscapeDataString(_options.Realm)}/{path.TrimStart('/')}";
+
+    private static async Task<string?> ReadProviderReasonAsync(
+        HttpResponseMessage response,
+        CancellationToken cancellationToken)
+    {
+        var body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            return $"HTTP {(int)response.StatusCode} ({response.ReasonPhrase})";
+        }
+
+        return body.Length <= 512 ? body : body[..512];
+    }
+
+    private static bool IsConflict(string? providerReason) =>
+        providerReason?.Contains("exist", StringComparison.OrdinalIgnoreCase) == true ||
+        providerReason?.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true ||
+        providerReason?.Contains("already", StringComparison.OrdinalIgnoreCase) == true;
 
     private sealed record KeycloakTokenResponse(
         [property: JsonPropertyName("access_token")] string AccessToken,

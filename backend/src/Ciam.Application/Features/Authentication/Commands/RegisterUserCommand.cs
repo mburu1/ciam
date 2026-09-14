@@ -1,4 +1,5 @@
 using Ciam.Application.Abstractions.Identity;
+using Ciam.Application.Common.Exceptions;
 using Ciam.Application.Abstractions.Services;
 using Ciam.Application.Mappings;
 using Ciam.Contracts.Requests.Auth;
@@ -27,7 +28,7 @@ public sealed class RegisterUserCommandHandler(
 
         if (await userRepository.GetByEmailAsync(email.Value, cancellationToken) is not null)
         {
-            throw new InvalidOperationException("A user with this email address already exists.");
+            throw new ConflictException("A user with this email address already exists.");
         }
 
         var identity = await identityProvider.RegisterAsync(request, cancellationToken);

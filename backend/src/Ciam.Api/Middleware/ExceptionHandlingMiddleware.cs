@@ -29,6 +29,9 @@ public sealed class ExceptionHandlingMiddleware(
         {
             ValidationException => (HttpStatusCode.BadRequest, "validation_error"),
             ResourceNotFoundException => (HttpStatusCode.NotFound, "not_found"),
+            ConflictException => (HttpStatusCode.Conflict, "conflict"),
+            IdentityProviderException identityProviderException =>
+                (identityProviderException.StatusCode, "identity_provider_error"),
             UnauthorizedAccessException => (HttpStatusCode.Unauthorized, "unauthorized"),
             _ => (HttpStatusCode.InternalServerError, "internal_error")
         };
@@ -39,12 +42,35 @@ public sealed class ExceptionHandlingMiddleware(
         }
         else
         {
-            logger.LogWarning(exception, "Request failed with {StatusCode}: {Method} {Path}", (int)statusCode, context.Request.Method, context.Request.Path);
+            if (exception is IdentityProviderException identityProviderException)
+            {
+                logger.LogWarning(
+                    exception,
+                    "Identity provider rejected {Operation} with {StatusCode}: {ProviderReason}",
+                    identityProviderException.Operation,
+                    (int)statusCode,
+                    identityProviderException.ProviderReason);
+            }
+            else
+            {
+                logger.LogWarning(
+                    exception,
+                    "Request failed with {StatusCode}: {Method} {Path}",
+                    (int)statusCode,
+                    context.Request.Method,
+                    context.Request.Path);
+            }
         }
 
         var message = statusCode == HttpStatusCode.InternalServerError && !environment.IsDevelopment()
             ? "An unexpected error occurred."
-            : exception.Message;
+            : exception switch
+            {
+                IdentityProviderException { StatusCode: HttpStatusCode.Conflict } =>
+                    "The email address or username is already in use.",
+                IdentityProviderException => "The identity provider rejected the registration request.",
+                _ => exception.Message
+            };
 
         context.Response.StatusCode = (int)statusCode;
         context.Response.ContentType = "application/json";

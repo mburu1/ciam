@@ -1,4 +1,5 @@
 using Ciam.Application.Abstractions.Identity;
+using Ciam.Application.Common.Exceptions;
 using Ciam.Application.Features.Authentication.Commands;
 using Ciam.Contracts.Requests.Auth;
 using Ciam.Contracts.Responses.Auth;
@@ -50,7 +51,7 @@ public sealed class RegisterUserCommandHandlerTests
         var identity = new StubIdentityProvider();
         var handler = new RegisterUserCommandHandler(identity, repository, new StubUnitOfWork());
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(
+        await Assert.ThrowsAsync<ConflictException>(() => handler.Handle(
             new RegisterUserCommand(new RegisterUserRequest
             {
                 FirstName = "Grace",
