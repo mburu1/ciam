@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthShellComponent } from '../../../shared/ui/auth-shell/auth-shell.component';
 import { AuthService } from '../../../core/auth/services/auth.service';
+import { FrontendLogger } from '../../../core/logging/frontend-logger.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +33,7 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 })
 export class RegisterPage {
   readonly auth = inject(AuthService);
+  private readonly logger = inject(FrontendLogger);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   readonly error = signal('');
@@ -57,8 +59,16 @@ export class RegisterPage {
         this.success.set('Your account was created. You can now sign in.');
         setTimeout(() => this.router.navigateByUrl('/auth/login'), 1200);
       },
-      error: (error: { error?: { message?: string } }) =>
-        this.error.set(error.error?.message ?? 'Unable to create your account. Please try again.'),
+      error: (error: { error?: { message?: string; errorCode?: string }; status?: number; statusText?: string }) => {
+        this.logger.error('Account registration failed', {
+          method: 'POST',
+          url: '/api/auth/register',
+          status: error.status,
+          statusText: error.statusText,
+          errorCode: error.error?.errorCode,
+        }, error);
+        this.error.set(error.error?.message ?? 'Unable to create your account. Please try again.');
+      },
     });
   }
 }
